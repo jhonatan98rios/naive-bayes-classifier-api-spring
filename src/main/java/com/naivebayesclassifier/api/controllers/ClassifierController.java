@@ -2,6 +2,7 @@ package com.naivebayesclassifier.api.controllers;
 
 import com.naivebayesclassifier.api.dtos.ClassifierResponseDTO;
 import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
+import com.naivebayesclassifier.api.dtos.CreateClassifierRequest;
 import com.naivebayesclassifier.api.dtos.UploadClassifierResponse;
 import com.naivebayesclassifier.api.enitites.ClassifierEntity;
 import com.naivebayesclassifier.api.services.ClassifierService;
@@ -57,5 +58,12 @@ public class ClassifierController {
 
         UploadClassifierResponse res = classifierService.uploadClassifierFile(file, filename);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/publish")
+    public ResponseEntity<String> createClassifier(@RequestBody CreateClassifierRequest request) {
+        System.out.println(request);
+        String res = classifierService.createClassifier(request);
+        return  ResponseEntity.ok("Value Received: " + res);
     }
 }

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.naivebayesclassifier.api.dtos.CreateClassifierRequest;
+import com.naivebayesclassifier.api.enitites.EventPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -60,5 +62,52 @@ public class ClassifierService {
         String objectKey = "raw/" + uuid + "-" + filename;
         String path = s3Provider.uploadFile(file, objectKey);
         return new UploadClassifierResponse(path, uuid);
+    }
+
+    public String createClassifier(CreateClassifierRequest request) {
+        // Verifica se o ID já existe no banco
+        Optional<ClassifierEntity> existingClassifierOptional = classifierRepository.findById(request.id());
+
+        if (existingClassifierOptional.isPresent()) {
+            // Se o ID já existe, não faz nada
+            return "ID já existe";
+        }
+
+        // Se o ID não existe, cria um novo documento no banco de dados
+        ClassifierEntity newClassifier = new ClassifierEntity(
+                request.id(),
+                request.name(),
+                request.description(),
+                request.type(),
+                request.size(),
+                request.format(),
+                request.status(),
+                request.path(),
+                request.isPublic(),
+                request.owners()
+        );
+
+        System.out.println(newClassifier);
+
+        //classifierRepository.save(newClassifier);
+
+        // Envia a mensagem para a fila SQS
+        EventPayload payload = new EventPayload(
+                request.id(),
+                request.name(),
+                request.description(),
+                request.type(),
+                request.format(),
+                request.status(),
+                request.path(),
+                request.isPublic(),
+                request.owners()
+        );
+        System.out.println(payload);
+
+        //sqsProvider.sendMessage(payload);
+
+        // Retorna o Id do objeto criado
+        return request.id();
     }
 }
