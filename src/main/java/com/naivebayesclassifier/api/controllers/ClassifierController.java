@@ -1,6 +1,7 @@
 package com.naivebayesclassifier.api.controllers;
 
 import com.naivebayesclassifier.api.dtos.ClassifierResponseDTO;
+import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
 import com.naivebayesclassifier.api.enitites.ClassifierEntity;
 import com.naivebayesclassifier.api.services.ClassifierService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class ClassifierController {
 
     private final ClassifierService classifierService;
 
-    @GetMapping("/list-classifiers/")
+    @GetMapping("/list-classifiers")
     public ResponseEntity<List<ClassifierEntity>> getClassifiers() {
         List<ClassifierEntity> classifiers = classifierService.getClassifiers();
         return ResponseEntity.ok(classifiers);
@@ -27,6 +28,16 @@ public class ClassifierController {
         ClassifierResponseDTO classifier = classifierService.getClassifierByID(id);
         if (classifier != null) {
             return ResponseEntity.ok(classifier);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/read-classifier/{id}/status")
+    public ResponseEntity<ClassifierStatusResponseDTO> getClassifierStatusById(@PathVariable String id) {
+        ClassifierStatusResponseDTO classifierStatus = classifierService.getClassifierStatusByID(id);
+        if (classifierStatus != null) {
+            return ResponseEntity.ok(classifierStatus);
         } else {
             return ResponseEntity.notFound().build();
         }

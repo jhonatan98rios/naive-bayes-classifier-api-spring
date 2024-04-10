@@ -1,6 +1,7 @@
 package com.naivebayesclassifier.api.services;
 
 import com.naivebayesclassifier.api.converter.ClassifierMapper;
+import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
 import com.naivebayesclassifier.api.enitites.ClassifierEntity;
 import com.naivebayesclassifier.api.exceptions.ServiceException;
 import com.naivebayesclassifier.api.repositories.ClassifierRepository;
@@ -39,5 +40,11 @@ public class ClassifierService {
         }
 
         throw new ResponseStatusException(NOT_FOUND, "Read classifier by ID error: " + id);
+    }
+
+    public ClassifierStatusResponseDTO getClassifierStatusByID (String id) {
+        return classifierRepository.findStatusById(id)
+                .map(classifierEntity -> new ClassifierStatusResponseDTO(classifierEntity.getStatus()))
+                .orElse(null);
     }
 }
