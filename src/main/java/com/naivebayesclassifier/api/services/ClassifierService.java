@@ -1,18 +1,24 @@
 package com.naivebayesclassifier.api.services;
 
-import com.naivebayesclassifier.api.converter.ClassifierMapper;
-import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
-import com.naivebayesclassifier.api.enitites.ClassifierEntity;
-import com.naivebayesclassifier.api.exceptions.ServiceException;
-import com.naivebayesclassifier.api.repositories.ClassifierRepository;
-import com.naivebayesclassifier.api.dtos.ClassifierResponseDTO;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import java.util.List;
-import java.util.Optional;
+import com.naivebayesclassifier.api.providers.S3Provider;
+import com.naivebayesclassifier.api.converter.ClassifierMapper;
+import com.naivebayesclassifier.api.enitites.ClassifierEntity;
+import com.naivebayesclassifier.api.exceptions.ServiceException;
+import com.naivebayesclassifier.api.repositories.ClassifierRepository;
+
+import com.naivebayesclassifier.api.dtos.UploadClassifierResponse;
+import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
+import com.naivebayesclassifier.api.dtos.ClassifierResponseDTO;
 
 
 @Service
@@ -21,6 +27,7 @@ public class ClassifierService {
 
     private final ClassifierRepository classifierRepository;
     private final ClassifierMapper classifierMapper;
+    private final S3Provider s3Provider;
 
     public List<ClassifierEntity> getClassifiers() {
         return classifierRepository.findAll();
@@ -42,9 +49,16 @@ public class ClassifierService {
         throw new ResponseStatusException(NOT_FOUND, "Read classifier by ID error: " + id);
     }
 
-    public ClassifierStatusResponseDTO getClassifierStatusByID (String id) {
+    public ClassifierStatusResponseDTO getClassifierStatusByID(String id) {
         return classifierRepository.findStatusById(id)
                 .map(classifierEntity -> new ClassifierStatusResponseDTO(classifierEntity.getStatus()))
                 .orElse(null);
+    }
+
+    public UploadClassifierResponse uploadClassifierFile(MultipartFile file, String filename) {
+        String uuid = UUID.randomUUID().toString();
+        String objectKey = "raw/" + uuid + "-" + filename;
+        String path = s3Provider.uploadFile(file, objectKey);
+        return new UploadClassifierResponse(path, uuid);
     }
 }

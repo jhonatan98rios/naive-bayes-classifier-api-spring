@@ -2,11 +2,13 @@ package com.naivebayesclassifier.api.controllers;
 
 import com.naivebayesclassifier.api.dtos.ClassifierResponseDTO;
 import com.naivebayesclassifier.api.dtos.ClassifierStatusResponseDTO;
+import com.naivebayesclassifier.api.dtos.UploadClassifierResponse;
 import com.naivebayesclassifier.api.enitites.ClassifierEntity;
 import com.naivebayesclassifier.api.services.ClassifierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,5 +43,19 @@ public class ClassifierController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<UploadClassifierResponse> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("filename") String filename) {
+
+        System.out.println("\nFilename:");
+        System.out.println(filename);
+        System.out.println("\nFile:");
+        System.out.println(file);
+
+        UploadClassifierResponse res = classifierService.uploadClassifierFile(file, filename);
+        return ResponseEntity.ok(res);
     }
 }
