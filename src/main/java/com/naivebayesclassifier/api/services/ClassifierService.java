@@ -67,12 +67,11 @@ public class ClassifierService {
     }
 
     public String createClassifier(CreateClassifierRequest request) {
-        // Verifica se o ID já existe no banco
+
         Optional<ClassifierEntity> existingClassifierOptional = classifierRepository.findById(request.id());
 
         if (existingClassifierOptional.isPresent()) {
-            // Se o ID já existe, não faz nada
-            return "ID já existe";
+            throw new ServiceException("Classifier ID already exists: " + request.id());
         }
 
         // Se o ID não existe, cria um novo documento no banco de dados
@@ -89,9 +88,7 @@ public class ClassifierService {
                 request.owners()
         );
 
-        System.out.println(newClassifier);
-
-        //classifierRepository.save(newClassifier);
+        classifierRepository.save(newClassifier);
 
         // Envia a mensagem para a fila SQS
         EventPayload payload = new EventPayload(

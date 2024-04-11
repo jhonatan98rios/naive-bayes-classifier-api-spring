@@ -30,8 +30,6 @@ public class SQSProvider {
                 .setHeader("sender", "naive-bayes-classifier-api")
                 .build();
 
-        System.out.println(msg);
-
         // Enviar a mensagem para a fila SQS
         queueMessagingTemplate.send(queueName, msg);
 
