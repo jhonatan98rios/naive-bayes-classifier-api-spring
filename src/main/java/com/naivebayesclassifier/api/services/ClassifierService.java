@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.naivebayesclassifier.api.dtos.CreateClassifierRequest;
 import com.naivebayesclassifier.api.enitites.EventPayload;
+import com.naivebayesclassifier.api.providers.SQSProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,6 +31,7 @@ public class ClassifierService {
     private final ClassifierRepository classifierRepository;
     private final ClassifierMapper classifierMapper;
     private final S3Provider s3Provider;
+    private final SQSProvider sqsProvider;
 
     public List<ClassifierEntity> getClassifiers() {
         return classifierRepository.findAll();
@@ -103,11 +105,14 @@ public class ClassifierService {
                 request.isPublic(),
                 request.owners()
         );
-        System.out.println(payload);
 
-        //sqsProvider.sendMessage(payload);
+        boolean sentMessage = sqsProvider.sendMessage(payload);
+
+        if (!sentMessage) {
+            throw new ServiceException("Failed to publish message on queue");
+        }
 
         // Retorna o Id do objeto criado
-        return request.id();
+        return newClassifier.getId();
     }
 }

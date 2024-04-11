@@ -3,7 +3,6 @@ package com.naivebayesclassifier.api.enitites;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
@@ -42,6 +41,7 @@ public class ClassifierEntity {
             boolean isPublic,
             List<String> owners
     ) {
+        this._id = null;
         this.id = id;
         this.name = name;
         this.description = description;

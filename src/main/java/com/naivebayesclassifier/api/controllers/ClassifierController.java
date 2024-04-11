@@ -47,9 +47,7 @@ public class ClassifierController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadClassifierResponse> uploadFile(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("filename") String filename) {
+    public ResponseEntity<UploadClassifierResponse> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("filename") String filename) {
 
         System.out.println("\nFilename:");
         System.out.println(filename);
