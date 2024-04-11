@@ -15,8 +15,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SQSProvider {
 
+    @Value("${aws.numQueueUrl}")
+    private String numQueueUrl;
+
     @Value("${aws.nlpQueueUrl}")
-    private String queueName;
+    private String nlpQueueUrl;
 
     private final QueueMessagingTemplate queueMessagingTemplate;
 
@@ -26,12 +29,16 @@ public class SQSProvider {
     }
 
     public boolean sendMessage(final EventPayload messagePayload) {
+
         Message<EventPayload> msg = MessageBuilder.withPayload(messagePayload)
                 .setHeader("sender", "naive-bayes-classifier-api")
                 .build();
 
+        // Seleciona a fila com base no tipo de Classifier
+        String queueUrl = messagePayload.type().equals("nlp") ? nlpQueueUrl : numQueueUrl;
+
         // Enviar a mensagem para a fila SQS
-        queueMessagingTemplate.send(queueName, msg);
+        queueMessagingTemplate.send(queueUrl, msg);
 
         // Retornar verdadeiro se a mensagem foi enviada com sucesso
         return true;
